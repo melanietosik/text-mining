@@ -87,7 +87,7 @@ public class SlidingWindow {
 
         // Minimum frequency counts for each n
         Map<Integer, Integer> minCounts = new HashMap<Integer, Integer>();
-        minCounts.put(1, 3);
+        minCounts.put(1, 2);
         minCounts.put(2, 6);
         minCounts.put(3, 15);
 
