@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import pa.nlp.*;
-import pa.tfidf.*;
+import pa.tfidf.TFIDF;
 
 
 public class Preprocessor {
@@ -44,7 +44,7 @@ public class Preprocessor {
         File f = new File(ngramFile);
         List<String> ngrams = new ArrayList<String>();
 
-        if(f.exists() && !f.isDirectory()) {
+        if (f.exists() && !f.isDirectory()) {
             try {
                 ngrams = slide.loadNgrams();
             } catch(IOException e) {
@@ -64,19 +64,29 @@ public class Preprocessor {
     private double[] vectorize(List<String> toks) throws IOException {
 
         TFIDF scorer = new TFIDF();
+        double[] vec = new double[_terms.size()];
+        double[] tok = new double[toks.size()];
 
-        int len = toks.size();
-        double[] vec = new double[len];
-
-        for (int i=0; i<len; i++) {
-
+        // Get token TF-IDF scores
+        for (int i=0; i<toks.size(); i++) {
             String term = toks.get(i);
             double score = scorer.tfIdf(toks, _docs, term);
-            System.out.println(score);
-            vec[i] = score;
+            tok[i] = score;
+        }
+
+        // Generate term vector
+        int i = 0;
+        for (String term: _terms) {
+
+            if (toks.contains(term)) {
+                int idx = toks.indexOf(term);
+                vec[i] = tok[idx];
+            } else {
+                vec[i] = 0;
+            }
+            i++;
         }
         return vec;
-
     }
 
 }

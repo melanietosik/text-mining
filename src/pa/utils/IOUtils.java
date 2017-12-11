@@ -91,11 +91,11 @@ public class IOUtils {
         input.useDelimiter(",");
 
         int i = 0;
-        while(input.hasNextLine()) {
+        while (input.hasNextLine()) {
             Scanner c = new Scanner(input.nextLine());
             c.useDelimiter(",");
-            for(int j=0; j<ndims; j++) {
-                if(c.hasNextDouble()) {
+            for (int j=0; j<ndims; j++) {
+                if (c.hasNextDouble()) {
                     a[i][j] = c.nextDouble();
                 }
             }
