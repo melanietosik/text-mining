@@ -3,7 +3,7 @@ package pa.tfidf;
 import java.io.*;
 import java.util.*;
 
-import pa.nlp.CoreNLP;
+import pa.nlp.*;
 
 
 public class Pipeline {
@@ -16,6 +16,7 @@ public class Pipeline {
         // Map documents to list of tokens
         Map<String, List<String>> map = new HashMap<String, List<String>>();
 
+        System.out.println("Processing documents...");
         for (File folder: data) {
 
             if (!folder.getName().startsWith("C")) {
@@ -27,21 +28,33 @@ public class Pipeline {
 
             for (File doc: docs) {
 
-            	String id = folder + "_" + doc.getName();
+            	String id = folder.getName() + "_" + doc.getName();
             	id = id.substring(0, id.lastIndexOf("."));
+            	System.out.println(id);
 
             	// Read text
             	String text = readFile(doc.getAbsolutePath());
-
             	// Process document using CoreNLP
             	CoreNLP nlp = new CoreNLP(text);
             	// Get document tokens
                 List<String> toks = nlp.getToks();
-                System.out.println(toks);
                 // Map ID to tokens
                 map.put(id, toks);
             }
 		}
+
+		// Sliding window
+		System.out.println("Sliding window...");
+		SlidingWindow ngrams = new SlidingWindow(map);
+		map = ngrams.mergeNgrams();
+
+		// TF-IDF
+		System.out.println("Calculating TF-IDF scores...");
+		TFIDF scorer = new TFIDF(map);
+		// Compute matrix and topics
+		scorer.computeTfidfMatrix();
+
+		System.out.println("Done");
 	}
 
 	// Read text file

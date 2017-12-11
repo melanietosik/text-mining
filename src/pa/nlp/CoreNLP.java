@@ -87,14 +87,14 @@ public class CoreNLP {
     // Filter stop words and punctuation
     private List<String> filter(List<String> toks) {
 
-        for (Iterator<String> iterator = toks.iterator(); iterator.hasNext(); ) {
+        for (Iterator<String> iter = toks.iterator(); iter.hasNext(); ) {
       
-            String tok = iterator.next();
+            String tok = iter.next();
             
             // Filter punctuation
             boolean nonAlpha = tok.matches("^.*[^a-zA-Z0-9 ].*$");
             if (nonAlpha || stop.contains(tok)) {
-                iterator.remove();
+                iter.remove();
             }
         }
         return toks;
@@ -115,4 +115,6 @@ public class CoreNLP {
 	    Set<String> stop = new HashSet<String>(toks);
 	    return stop;
 	}
+
 }
+
