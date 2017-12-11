@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Distance {
 
-    Distance(){};
+    public Distance(){};
 
     double[][] _matrix;
     public Distance(double[][] matrix) {

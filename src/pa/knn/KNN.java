@@ -3,95 +3,80 @@ package pa.knn;
 import java.io.*;
 import java.util.*;
 
-import pa.kmeans.*;
-import pa.nlp.*;
-import pa.tfidf.*;
-
+import pa.kmeans.Distance;
 
 public class KNN {
 
-    private static int _nrows;  // Number of rows in matrix
-    private static int _ndims;  // Number of dimensions in matrix
-
-    private static String idFile = "resources/ids.txt";
-    private static String matrixFile = "resources/matrix.txt";
-    private static String nameFile = "resources/names.txt";
-    private static String ngramFile = "resources/ngrams.txt";
-
-    private static double[][] _matrix;          // TF-IDF matrix
-    private static List<String> _ids;           // Document IDs
-    private static List<String> _labels;        // Document labels
-    private static List<List<String>> _docs;    // Document tokens
-
-    public KNN(double[][] matrix, List<List<String>> docs, List<String> ids, List<String> labels) {
-        _matrix = matrix;
-        _docs = docs;
-        _ids = ids;
-        _labels = labels;
-    }
-
-    public String getLabel(String doc, String metric, int k) throws IOException {
-
-        // Preprocess input document
-        List<String> toks = preprocess(doc);
-
-        // Generate TF-IDF vector
-        double[] vec = vectorize(toks);
-
-        return "hello";
-
-    }
-
-    // Preprocess unseen document
-    private List<String> preprocess(String doc) throws IOException {
-
-        // Process document using CoreNLP
-        CoreNLP nlp = new CoreNLP(doc);
-        // Get document tokens
-        List<String> toks = nlp.getToks();
-
-        // Sliding window
-        SlidingWindow slide = new SlidingWindow();
-
-        // Load n-grams
-        File f = new File(ngramFile);
-        List<String> ngrams = new ArrayList<String>();
-
-        if(f.exists() && !f.isDirectory()) {
-            try {
-                ngrams = slide.loadNgrams();
-            } catch(IOException e) {
-                e.printStackTrace();
-            }   
-        } else {
-            System.out.println("Missing n-gram file, exiting");
-            System.exit(1);
-        }
-
-        // Merge n-grams
-        toks = slide.mergeNgrams(toks, ngrams);
-        return toks;
-    }
-
-    // Generate TF-IDF vector
-    private double[] vectorize(List<String> toks) throws IOException {
-
-        TFIDF scorer = new TFIDF();
-
-        int len = toks.size();
-        double[] vec = new double[len];
-
-        for (int i=0; i<len; i++) {
-
-            String term = toks.get(i);
-            double score = scorer.tfIdf(toks, _docs, term);
-            System.out.println(score);
-            vec[i] = score;
-        }
-        return vec;
-
-    }
-
+    private static double[][] _matrix;  // TF-IDF matrix
     
+    public KNN(double[][] matrix) {
+        _matrix = matrix;
+    }
+
+    private static Distance distance = new Distance();
+
+    // Get k-nearest neighbors
+    public int[] getNearestNeighbors(double[] vec, int k, String metric) {
+
+        int[] neighbors = new int[k];
+
+        List<Integer> refs = new ArrayList<Integer>();
+        for (int i=0; i<_matrix.length; i++) {
+            refs.add(i);
+        }
+
+        for (int i=0; i<k; i++) {
+            int label = nearest(vec, refs, metric);
+            neighbors[i] = label;
+            refs.remove(new Integer(label));
+        }
+        return neighbors;
+    }
+
+    // Get nearest document vector to input vector
+    private int nearest(double[] vec, List<Integer> refs, String metric) {
+
+        if (!metric.equals("euclid") && !metric.equals("cosine")) {
+            throw new IllegalArgumentException("Invalid metric");
+        }
+
+        double max = 0.0;
+        if (metric.equals("euclid")) {
+            max = distance.euclid(vec, _matrix[refs.get(0)]);
+        } else {
+            max = distance.cosine(vec, _matrix[refs.get(0)]);
+        }
+
+        int label = 0;
+        for (int ref: refs) {
+
+            double dist = 0.0;
+            if (metric.equals("euclid")) {
+                dist = distance.euclid(vec, _matrix[ref]);
+            } else {
+                dist = distance.cosine(vec, _matrix[ref]);
+            }
+            if (dist > max) {
+                max = dist;
+                label = ref;
+            }
+        }
+        return label;
+    }
+
+    // Get majority label
+    public String getLabel(List<String> topics) {
+
+        Map<String, Integer> counts = new HashMap<String, Integer>();
+        topics.forEach(s -> counts.put(s, counts.getOrDefault(s, 0) + 1));
+
+        String max = counts.keySet().stream().reduce((s1, s2) -> {
+            if (counts.get(s1) > counts.get(s2)) {
+                return s1;
+            } return s2;
+        }).orElseThrow(() -> new IllegalStateException("Eut"));
+        return max;
+    }
+
 }
 

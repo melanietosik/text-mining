@@ -26,15 +26,6 @@ public class Pipeline {
         _k = 5;
         _metric = "cosine";
 
-        // // Read TF-IDF matrix
-        // double[][] matrix = readMatrix(matrixFile);
-        // // Read document IDs
-        // List<String> ids = readStrings(idFile);
-        // // Read document labels
-        // List<String> labels = readStrings(nameFile);
-        // // Read document tokens
-        // List<List<String>> docs = readDocs(docFile);
-
         // Read document text
         String doc = "Is Earth trying to eject us from the planet? Again and again and again the harshest of winds and hardest of rains has pounded on the most-defenseless territories we have. The Caribbean islands, hanging out in open sea. The Florida peninsula, jutting out into danger.";
 
@@ -46,7 +37,33 @@ public class Pipeline {
         Preprocessor tfidf = new Preprocessor(docs, terms);
         double[] vec = tfidf.process(doc);
 
-        utils.printDoubleArr(vec);
+        // Read TF-IDF matrix
+        double[][] matrix = utils.readMatrix(matrixFile);
+
+        // K-NN
+        KNN knn = new KNN(matrix);
+        int[] neighbors = knn.getNearestNeighbors(vec, _k, _metric);
+
+        // Read document IDs and topic names
+        List<String> ids = utils.readLines(idFile);
+        List<String> topics = utils.readLines(nameFile);
+
+        // Print results and get neighbors' topics
+        List<String> nearestTopics = new ArrayList<String>();
+
+        for (int i: neighbors) {
+            System.out.println(ids.get(i) + ", " + topics.get(i));
+            nearestTopics.add(topics.get(i));
+        }
+
+        // Get majority label for input document
+        String label = knn.getLabel(nearestTopics);
+
+        System.out.println("Label: " + label);
+
+
+
+
 
 
 

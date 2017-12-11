@@ -26,7 +26,7 @@ public class KMeans {
     public int[] clusterDocs(int k) {
 
         if (!_metric.equals("euclid") && !_metric.equals("cosine")) {
-            throw new IllegalArgumentException("invalid metric");
+            throw new IllegalArgumentException("Invalid metric");
         }
 
         // Matrix size
