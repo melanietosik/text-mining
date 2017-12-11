@@ -6,11 +6,14 @@ import java.util.*;
 
 public class TFIDF {
 
+    public TFIDF(){};
+
     private Map<String, List<String>> map;
     public TFIDF(Map<String, List<String>> tokMap) {
         map = tokMap;
     }
     private String idFile = "resources/ids.txt";
+    private String docFile = "resources/docs.txt";
     private String termFile = "resources/terms.txt";
     private String matrixFile = "resources/matrix.txt";
     private String topicsFile = "resources/topics.txt";
@@ -39,9 +42,10 @@ public class TFIDF {
         List<String> terms = new ArrayList(termSet);
         Collections.sort(terms, new AlphanumComparator());
 
-        // Write IDs and terms to file
+        // Write terms, document IDs, and document tokens
         writeList(docIds, idFile);
         writeList(terms, termFile);
+        writeDocs(docs, docFile);
 
         // Compute TF-IDF matrix
         for (String id: docIds) {
@@ -56,7 +60,7 @@ public class TFIDF {
             tfidfMatrix.add(scores);
         }
 
-        // Write matrix to file 
+        // Write matrix
         writeMatrix(tfidfMatrix);
         // Get topics
         getTopics(tfidfMatrix, docs, docIds);
@@ -125,7 +129,7 @@ public class TFIDF {
     }
 
     // Term frequency–inverse document frequency (TF-IDF)
-    private double tfIdf(List<String> toks, List<List<String>> docs, String term) {
+    public double tfIdf(List<String> toks, List<List<String>> docs, String term) {
         return tf(toks, term) * idf(docs, term);
     }
 
@@ -138,9 +142,20 @@ public class TFIDF {
         writer.close();
     }
 
+    // Write document tokens to file
+    private void writeDocs(List<List<String>> docs, String fileName) throws IOException {
+        FileWriter writer = new FileWriter(fileName);
+        for(List<String> doc: docs) {
+            for(String tok: doc) {
+                writer.write(tok + " ");
+            }
+            writer.write("\n");
+        }
+        writer.close();
+    }
+
     // Write matrix to file
     private void writeMatrix(List<List<Double>> matrix) throws IOException {
-
         FileWriter writer = new FileWriter(matrixFile);
         for(List<Double> row: matrix) {
             for (Double score: row) {

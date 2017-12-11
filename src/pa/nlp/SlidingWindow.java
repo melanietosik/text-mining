@@ -13,13 +13,15 @@ public class SlidingWindow {
     private static String ngramFile = "resources/ngrams.txt";
     private static List<String> ngrams;
 
+    public SlidingWindow(){};
+
     private Map<String, List<String>> map;
     public SlidingWindow(Map<String, List<String>> tokMap) {
         map = tokMap;
     }
 
     // Merge frequent n-grams using a sliding window over input tokens
-    public Map<String, List<String>> mergeNgrams() throws IOException {
+    public Map<String, List<String>> processNgrams() throws IOException {
 
         // Load or generate n-grams
         File f = new File(ngramFile);
@@ -30,8 +32,7 @@ public class SlidingWindow {
             } catch(IOException e) {
                 e.printStackTrace();
             }   
-        }
-        else {
+        } else {
             System.out.println("Generating n-grams...");
             ngrams = generateNgrams();
         }
@@ -39,35 +40,43 @@ public class SlidingWindow {
         // Filter and merge tokens based on n-grams
         for (Map.Entry<String, List<String>> entry: map.entrySet()) {
 
-            // Join to string of tokens
-            String stringToks = String.join(" ", entry.getValue());
-
-            for (String ngram: ngrams) {
-                // Merge n-gram
-                String merged = ngram.replace(" ", "_");
-                // Replace n-gram in string of tokens
-                stringToks = stringToks.replace(ngram, merged);
-            }
-
-            // Convert string of tokens back to list
-            List<String> toks = Arrays.asList(stringToks.split(" "));
-            
-            // Filter remaining tokens
-            List<String> filtered = new ArrayList<String>();
-            for (String tok: toks) {
-                if (ngrams.contains(tok.replace("_", " "))) {
-                    filtered.add(tok);
-                }
-            }
+            List<String> merged = new ArrayList<String>();
+            merged = mergeNgrams(entry.getValue(), ngrams);
 
             // Update map
-            entry.setValue(filtered);
+            entry.setValue(merged);
         }
         return map;
     }
 
+    // Merge n-grams
+    public static List<String> mergeNgrams(List<String> toks, List<String> ngrams) {
+
+        // Join to string of tokens
+        String stringToks = String.join(" ", toks);
+
+        for (String ngram: ngrams) {
+            // Merge n-gram
+            String merged = ngram.replace(" ", "_");
+            // Replace n-gram in string of tokens
+            stringToks = stringToks.replace(ngram, merged);
+        }
+
+        // Convert string of tokens back to list
+        List<String> toksMerged = Arrays.asList(stringToks.split(" "));
+        
+        // Filter remaining tokens
+        List<String> filtered = new ArrayList<String>();
+        for (String tok: toksMerged) {
+            if (ngrams.contains(tok.replace("_", " "))) {
+                filtered.add(tok);
+            }
+        }
+        return filtered;
+    }
+
     // Load n-grams
-    private static List<String> loadNgrams() throws IOException {
+    public static List<String> loadNgrams() throws IOException {
 
         Scanner scanner = new Scanner(new File(ngramFile));
         List<String> ngrams = new ArrayList<String>();

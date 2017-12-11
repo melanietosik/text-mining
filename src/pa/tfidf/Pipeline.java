@@ -4,9 +4,12 @@ import java.io.*;
 import java.util.*;
 
 import pa.nlp.*;
+import pa.utils.IOUtils;
 
 
 public class Pipeline {
+
+    private static IOUtils utils = new IOUtils();
 
     public static void main(String[] args) throws IOException {
 
@@ -19,9 +22,11 @@ public class Pipeline {
         System.out.println("Processing documents...");
         for (File folder: data) {
 
-            if (!folder.getName().startsWith("C")) {
+            String folderName = folder.getName();
+            if (!folderName.startsWith("C")) {
                 continue;
             }
+            System.out.println(folderName);
 
             File[] docs;
             docs = folder.listFiles();
@@ -30,10 +35,9 @@ public class Pipeline {
 
                 String id = folder.getName() + "_" + doc.getName();
                 id = id.substring(0, id.lastIndexOf("."));
-                System.out.println(id);
 
                 // Read text
-                String text = readFile(doc.getAbsolutePath());
+                String text = utils.readText(doc.getAbsolutePath());
                 // Process document using CoreNLP
                 CoreNLP nlp = new CoreNLP(text);
                 // Get document tokens
@@ -46,7 +50,7 @@ public class Pipeline {
         // Sliding window
         System.out.println("Sliding window...");
         SlidingWindow ngrams = new SlidingWindow(map);
-        map = ngrams.mergeNgrams();
+        map = ngrams.processNgrams();
 
         // TF-IDF
         System.out.println("Calculating TF-IDF scores...");
@@ -57,20 +61,5 @@ public class Pipeline {
         System.out.println("Done");
     }
 
-    // Read text file
-    public static String readFile(String file) throws IOException {
-
-        InputStream is = new FileInputStream(file);
-        BufferedReader buf = new BufferedReader(new InputStreamReader(is));
-
-        String line;
-        String text = "";
-
-        // Read text line by line
-        while((line = buf.readLine()) != null){
-            text += line + " ";
-        }
-        return text;
-    }
 }
 

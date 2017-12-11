@@ -8,7 +8,7 @@ public class Distance {
     Distance(){};
 
     double[][] _matrix;
-    Distance(double[][] matrix) {
+    public Distance(double[][] matrix) {
         _matrix = matrix;
     }
 
