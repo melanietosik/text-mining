@@ -15,7 +15,7 @@ public class Pipeline {
 
     private static String idFile = "resources/ids.txt";
     private static String matrixFile = "resources/matrix.txt";
-    private static String labelsFile = "resources/labels.txt";
+    private static String labelsFile = "resources/labels_kmeans.txt";
 
     public static void main(String[] args) throws IOException {
 
