@@ -1,10 +1,11 @@
 # Text mining in Java
 
-## Run
+## Environment
 
 ```
 $ mkdir bin
 $ export CLASSPATH=bin/pa/tfidf/:bin/pa/kmeans/:bin:lib/*:.
+```
 
 ## TF-IDF and document topics
 
@@ -17,3 +18,4 @@ $ javac -d bin -sourcepath src src/pa/tfidf/Pipeline.java && java pa.tfidf.Pipel
 ```
 $ javac -d bin -sourcepath src src/pa/kmeans/Pipeline.java && java pa.kmeans.Pipeline
 ```
+
