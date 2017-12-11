@@ -81,10 +81,10 @@ public class AlphanumComparator implements Comparator<String>
 
     public int compare(String s1, String s2)
     {
-    	if ((s1 == null) || (s2 == null)) 
-    	{
-    		return 0;
-    	}
+        if ((s1 == null) || (s2 == null)) 
+        {
+            return 0;
+        }
 
         int thisMarker = 0;
         int thatMarker = 0;

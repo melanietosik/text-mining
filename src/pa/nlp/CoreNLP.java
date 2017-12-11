@@ -8,37 +8,37 @@ import edu.stanford.nlp.simple.*;
 
 public class CoreNLP {
 
-	// Load stop words
-	private static String stopFile = "resources/stopwords.txt";
-	private static Set<String> stop;
-	static {
-		try {
-			stop = loadStop();
-		} catch(IOException e) {
-        	e.printStackTrace();
-    	}
+    // Load stop words
+    private static String stopFile = "resources/stopwords.txt";
+    private static Set<String> stop;
+    static {
+        try {
+            stop = loadStop();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 
-	private String text; 
-	public CoreNLP(String doc) {
-		text = doc;
-	}
+    private String text; 
+    public CoreNLP(String doc) {
+        text = doc;
+    }
 
     // Print text
-	public void printText() {
-		System.out.println(text);
-	}
+    public void printText() {
+        System.out.println(text);
+    }
 
-	// Get preprocessed document tokens
-	public List<String> getToks() {
+    // Get preprocessed document tokens
+    public List<String> getToks() {
 
-		List<String> toks;
+        List<String> toks;
 
-		toks = ner();
-		return filter(toks);
-	}
+        toks = ner();
+        return filter(toks);
+    }
 
-	// Apply named-entity recognition (NER)
+    // Apply named-entity recognition (NER)
     private List<String> ner() {
 
         Document doc = new Document(text);
@@ -46,8 +46,8 @@ public class CoreNLP {
 
         for (Sentence sent: doc.sentences()) {
 
-        	int len = sent.length();
-			String ne = "";
+            int len = sent.length();
+            String ne = "";
             List<String> sentToks = new ArrayList<String>();
             
             for (int i=0; i<len; i++){
@@ -100,21 +100,21 @@ public class CoreNLP {
         return toks;
     }
 
-	// Load stop words
-	private static Set<String> loadStop() throws IOException {
+    // Load stop words
+    private static Set<String> loadStop() throws IOException {
 
-		Scanner scanner = new Scanner(new File(stopFile));
-		List<String> toks = new ArrayList<String>();
+        Scanner scanner = new Scanner(new File(stopFile));
+        List<String> toks = new ArrayList<String>();
 
-	    // Read list of stop words line by line
-	    while (scanner.hasNext()){
-	        toks.add(scanner.next());
-	    }
-	    scanner.close(); 
+        // Read list of stop words line by line
+        while (scanner.hasNext()){
+            toks.add(scanner.next());
+        }
+        scanner.close(); 
 
-	    Set<String> stop = new HashSet<String>(toks);
-	    return stop;
-	}
+        Set<String> stop = new HashSet<String>(toks);
+        return stop;
+    }
 
 }
 

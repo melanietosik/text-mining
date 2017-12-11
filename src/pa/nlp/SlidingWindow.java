@@ -9,34 +9,34 @@ import pa.nlp.CoreNLP;
 
 public class SlidingWindow {
 
-	// Load list of n-grams to be merged
-	private static String ngramFile = "resources/ngrams.txt";
-	private static List<String> ngrams;
+    // Load list of n-grams to be merged
+    private static String ngramFile = "resources/ngrams.txt";
+    private static List<String> ngrams;
 
-	private Map<String, List<String>> map;
-	public SlidingWindow(Map<String, List<String>> tokMap) {
-		map = tokMap;
-	}
+    private Map<String, List<String>> map;
+    public SlidingWindow(Map<String, List<String>> tokMap) {
+        map = tokMap;
+    }
 
-	// Merge frequent n-grams using a sliding window over input tokens
-	public Map<String, List<String>> mergeNgrams() throws IOException {
+    // Merge frequent n-grams using a sliding window over input tokens
+    public Map<String, List<String>> mergeNgrams() throws IOException {
 
-		// Load or generate n-grams
-		File f = new File(ngramFile);
-		if(f.exists() && !f.isDirectory()) {
-			try {
-				System.out.println("Loading n-grams...");
-				ngrams = loadNgrams();
-			} catch(IOException e) {
-        		e.printStackTrace();
-    		}   
-		}
-		else {
-			System.out.println("Generating n-grams...");
-			ngrams = generateNgrams();
-		}
+        // Load or generate n-grams
+        File f = new File(ngramFile);
+        if(f.exists() && !f.isDirectory()) {
+            try {
+                System.out.println("Loading n-grams...");
+                ngrams = loadNgrams();
+            } catch(IOException e) {
+                e.printStackTrace();
+            }   
+        }
+        else {
+            System.out.println("Generating n-grams...");
+            ngrams = generateNgrams();
+        }
 
-		// Filter and merge tokens based on n-grams
+        // Filter and merge tokens based on n-grams
         for (Map.Entry<String, List<String>> entry: map.entrySet()) {
 
             // Join to string of tokens
@@ -55,8 +55,8 @@ public class SlidingWindow {
             // Filter remaining tokens
             List<String> filtered = new ArrayList<String>();
             for (String tok: toks) {
-            	if (ngrams.contains(tok.replace("_", " "))) {
-                	filtered.add(tok);
+                if (ngrams.contains(tok.replace("_", " "))) {
+                    filtered.add(tok);
                 }
             }
 
@@ -64,30 +64,30 @@ public class SlidingWindow {
             entry.setValue(filtered);
         }
         return map;
-	}
+    }
 
-	// Load n-grams
-	private static List<String> loadNgrams() throws IOException {
+    // Load n-grams
+    private static List<String> loadNgrams() throws IOException {
 
-		Scanner scanner = new Scanner(new File(ngramFile));
-		List<String> ngrams = new ArrayList<String>();
+        Scanner scanner = new Scanner(new File(ngramFile));
+        List<String> ngrams = new ArrayList<String>();
 
-	    // Read list of stop words line by line
-	    while (scanner.hasNextLine()){
-	        ngrams.add(scanner.nextLine());
-	    }
-	    scanner.close(); 
-	    return ngrams;
-	}
+        // Read list of stop words line by line
+        while (scanner.hasNextLine()){
+            ngrams.add(scanner.nextLine());
+        }
+        scanner.close(); 
+        return ngrams;
+    }
 
-	// Generate n-grams
-	private List<String> generateNgrams() throws IOException {
+    // Generate n-grams
+    private List<String> generateNgrams() throws IOException {
 
-		List<String> ngrams = new ArrayList<String>();
+        List<String> ngrams = new ArrayList<String>();
 
-		// Minimum frequency counts for each n
-		Map<Integer, Integer> minCounts = new HashMap<Integer, Integer>();
-		minCounts.put(1, 3);
+        // Minimum frequency counts for each n
+        Map<Integer, Integer> minCounts = new HashMap<Integer, Integer>();
+        minCounts.put(1, 3);
         minCounts.put(2, 6);
         minCounts.put(3, 15);
 
@@ -97,38 +97,38 @@ public class SlidingWindow {
 
         for (int n=max; n>=min; n--) {
 
-        	System.out.println(n);
+            System.out.println(n);
 
-			Map<String, Integer> freqs = new HashMap<String, Integer>();
+            Map<String, Integer> freqs = new HashMap<String, Integer>();
 
-			// Get n-grams and frequencies
-        	for (Map.Entry<String, List<String>> entry: map.entrySet()) {
+            // Get n-grams and frequencies
+            for (Map.Entry<String, List<String>> entry: map.entrySet()) {
 
-        		// Get n-grams from tokens
-        		List<String> docNgrams = getNgrams(n, entry.getValue());
+                // Get n-grams from tokens
+                List<String> docNgrams = getNgrams(n, entry.getValue());
 
-        		// Update frequency count
-        		for (String ngram: docNgrams) {
-                	// Check if n-gram has valid part-of-speech (POS) pattern
-                	boolean isValid = isValidPOS(ngram);
-                	if (isValid) {
-                    	freqs.put(ngram, freqs.getOrDefault(ngram, 0) + 1);
-                	}
-            	}
-			}
-			Map<String, Integer> sorted = sortByValues(freqs, minCounts.get(n));
-			ngrams.addAll(sorted.keySet());
+                // Update frequency count
+                for (String ngram: docNgrams) {
+                    // Check if n-gram has valid part-of-speech (POS) pattern
+                    boolean isValid = isValidPOS(ngram);
+                    if (isValid) {
+                        freqs.put(ngram, freqs.getOrDefault(ngram, 0) + 1);
+                    }
+                }
+            }
+            Map<String, Integer> sorted = sortByValues(freqs, minCounts.get(n));
+            ngrams.addAll(sorted.keySet());
         }
-    	// Write n-grams to file
-		FileWriter writer = new FileWriter(ngramFile); 
-		for(String ngram: ngrams) {
-		  writer.write(ngram + "\n");
-		}
-		writer.close();
+        // Write n-grams to file
+        FileWriter writer = new FileWriter(ngramFile); 
+        for(String ngram: ngrams) {
+          writer.write(ngram + "\n");
+        }
+        writer.close();
         return ngrams;
-	}
+    }
 
-	private List<String> getNgrams(int n, List<String> toks) {
+    private List<String> getNgrams(int n, List<String> toks) {
 
         List<String> ngrams = new ArrayList<String>();
         
