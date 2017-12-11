@@ -34,6 +34,7 @@ public class Pipeline {
         List<String> terms = utils.readLines(termFile);
 
         // Preprocess and vectorize input document
+        System.out.println("Processing input document...");
         Preprocessor tfidf = new Preprocessor(docs, terms);
         double[] vec = tfidf.process(doc);
 
@@ -41,6 +42,7 @@ public class Pipeline {
         double[][] matrix = utils.readMatrix(matrixFile);
 
         // K-NN
+        System.out.println("Computing " + _k + "-nearest neighbors/topics...");
         KNN knn = new KNN(matrix);
         int[] neighbors = knn.getNearestNeighbors(vec, _k, _metric);
 
@@ -52,42 +54,20 @@ public class Pipeline {
         List<String> nearestTopics = new ArrayList<String>();
 
         for (int i: neighbors) {
-            System.out.println(ids.get(i) + ", " + topics.get(i));
+            System.out.println("\t" + ids.get(i) + ", " + topics.get(i));
             nearestTopics.add(topics.get(i));
         }
 
         // Get majority label for input document
         String label = knn.getLabel(nearestTopics);
+        System.out.println("Majority label: " + label);
 
-        System.out.println("Label: " + label);
-
-
-
-
-
-
-
-
-        // // K-NN classification
-        // System.out.println("K-NN classification...");
-        // KNN nearest = new KNN(matrix, docs, ids, labels);
-        // String label = nearest.getLabel(doc, _metric, _k);
-
-        // // Document similarity
-        // System.out.println("Document similarity...");
-        // Distance dist = new Distance(matrix);
-        // List<Integer> similar = dist.getSimilar(ids.indexOf(_query), 5, _metric);
-        // for (int idx: similar) {
-        //     System.out.println(ids.get(idx));
-        // }
-
+        // 10-fold cross-validation
+        System.out.println("Cross-validation...");
+        CrossValidation cv = new CrossValidation(matrix, ids, topics);
+        Map<Integer, Double> acc = cv.crossValidate(10);
+        System.out.println("Average accuracies: " + acc);
     }
-
-
-
-
-
-
 
 }
 

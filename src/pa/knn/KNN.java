@@ -7,10 +7,17 @@ import pa.kmeans.Distance;
 
 public class KNN {
 
-    private static double[][] _matrix;  // TF-IDF matrix
+    private static double[][] _matrix;          // TF-IDF matrix
+    private static List<Integer> _validation;   // Validation set
     
     public KNN(double[][] matrix) {
         _matrix = matrix;
+        _validation = new ArrayList<Integer>();
+    }
+
+    public KNN(double[][] matrix, List<Integer> validation) {
+        _matrix = matrix;
+        _validation = validation;
     }
 
     private static Distance distance = new Distance();
@@ -20,11 +27,18 @@ public class KNN {
 
         int[] neighbors = new int[k];
 
+        // Create list of reference indices
         List<Integer> refs = new ArrayList<Integer>();
         for (int i=0; i<_matrix.length; i++) {
             refs.add(i);
         }
 
+        // Hold out validation set
+        for (int i=0; i<_validation.size(); i++) {
+            refs.remove(new Integer(_validation.get(i)));
+        }
+
+        // Remove previously predicted neighbors to prevent duplicates
         for (int i=0; i<k; i++) {
             int label = nearest(vec, refs, metric);
             neighbors[i] = label;
