@@ -15,11 +15,12 @@ public class Pipeline {
 
     private static IOUtils utils = new IOUtils();
 
-    private static String idFile        = "resources/ids.txt";
-    private static String docFile       = "resources/docs.txt";
-    private static String matrixFile    = "resources/matrix.txt";
-    private static String nameFile      = "resources/names.txt";
-    private static String termFile      = "resources/terms.txt";
+    private static String idFile            = "resources/ids.txt";
+    private static String docFile           = "resources/docs.txt";
+    private static String matrixFile        = "resources/matrix.txt";
+    private static String nameFile          = "resources/names.txt";
+    private static String termFile          = "resources/terms.txt";
+    private static String testMatrixFile    = "resources/matrix_test.txt";
 
     public static void main(String[] args) throws IOException {
 
@@ -111,6 +112,9 @@ public class Pipeline {
         // True labels
         List<String> trueLabels = new ArrayList<String>();
 
+        // Test data TF-IDF matrix (to be used with RapidMiner)
+        List<List<Double>> testMatrix = new ArrayList<List<Double>>();
+
         for (File folder: testData) {
 
             String folderName = folder.getName();
@@ -131,7 +135,7 @@ public class Pipeline {
                 double[] testVec = tfidf.process(text);
                 
                 // Get k-nearest neighbors and topics
-                int[] testNeighbors = knn.getNearestNeighbors(testVec, best, "cosine");
+                int[] testNeighbors = knn.getNearestNeighbors(testVec, best, _metric);
                 List<String> testNearestTopics = new ArrayList<String>();
                 for (int i: testNeighbors) { testNearestTopics.add(topics.get(i)); }
                 
@@ -142,9 +146,18 @@ public class Pipeline {
                 // Get true label and add to list of true labels
                 String trueLabel = gold.get(id.split("_")[0]);
                 trueLabels.add(trueLabel);
+
+                // Add vector to TF-IDF matrix
+                List<Double> testScores = new ArrayList<Double>();
+                for (int j=0; j<testVec.length; j++) {
+                    testScores.add(testVec[j]);
+                }
+                testMatrix.add(testScores);
             }
         }
+        utils.writeMatrix(testMatrix, testMatrixFile);
         utils.printConfusionMatrix(predLabels, trueLabels);
     }
+
 }
 

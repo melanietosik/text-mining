@@ -105,13 +105,46 @@ public class IOUtils {
     }
 
     // Print matrix
-    static void printMatrix(int[][] a) {
+    public static void printMatrix(int[][] a) {
         for (int r=0; r<a.length; r++) {
             for (int c=0; c<a[r].length; c++) {
                 System.out.print(String.format("%4s", a[r][c]));
             }
             System.out.println();
         }
+    }
+
+    // Write matrix to file
+    public static void writeMatrix(List<List<Double>> matrix, String fileName) throws IOException {
+        FileWriter writer = new FileWriter(fileName);
+        for(List<Double> row: matrix) {
+            for (Double score: row) {
+                writer.write(score + ",");
+            }
+            writer.write("\n");
+        }
+        writer.close();
+    }
+
+    // Write list of strings to file
+    public static void writeList(List<String> toks, String fileName) throws IOException {
+        FileWriter writer = new FileWriter(fileName); 
+        for(String tok: toks) {
+          writer.write(tok + "\n");
+        }
+        writer.close();
+    }
+
+    // Write document tokens to file
+    public static void writeDocs(List<List<String>> docs, String fileName) throws IOException {
+        FileWriter writer = new FileWriter(fileName);
+        for(List<String> doc: docs) {
+            for(String tok: doc) {
+                writer.write(tok + " ");
+            }
+            writer.write("\n");
+        }
+        writer.close();
     }
 
     // Print confusion matrix
@@ -140,8 +173,8 @@ public class IOUtils {
 
         for (int i=0; i<predLabels.size(); i++) {
 
-            int row = map.get(predLabels.get(i));
-            int col = map.get(trueLabels.get(i));
+            int row = map.get(trueLabels.get(i));
+            int col = map.get(predLabels.get(i));
 
             matrix[row-1][col-1]++;
         }

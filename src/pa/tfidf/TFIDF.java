@@ -18,6 +18,8 @@ public class TFIDF {
     private String matrixFile = "resources/matrix.txt";
     private String topicsFile = "resources/topics.txt";
 
+    private static IOUtils utils = new IOUtils();
+
     // Compute TF-IDF matrix
     public void computeTfidfMatrix() throws IOException {
 
@@ -43,9 +45,9 @@ public class TFIDF {
         Collections.sort(terms, new AlphanumComparator());
 
         // Write terms, document IDs, and document tokens
-        writeList(docIds, idFile);
-        writeList(terms, termFile);
-        writeDocs(docs, docFile);
+        utils.writeList(docIds, idFile);
+        utils.writeList(terms, termFile);
+        utils.writeDocs(docs, docFile);
 
         // Compute TF-IDF matrix
         for (String id: docIds) {
@@ -61,7 +63,7 @@ public class TFIDF {
         }
 
         // Write matrix
-        writeMatrix(tfidfMatrix);
+        utils.writeMatrix(tfidfMatrix, matrixFile);
         // Get topics
         getTopics(tfidfMatrix, docs, docIds);
     }
@@ -131,39 +133,6 @@ public class TFIDF {
     // Term frequency–inverse document frequency (TF-IDF)
     public double tfIdf(List<String> toks, List<List<String>> docs, String term) {
         return tf(toks, term) * idf(docs, term);
-    }
-
-    // Write list of strings to file
-    private void writeList(List<String> toks, String fileName) throws IOException {
-        FileWriter writer = new FileWriter(fileName); 
-        for(String tok: toks) {
-          writer.write(tok + "\n");
-        }
-        writer.close();
-    }
-
-    // Write document tokens to file
-    private void writeDocs(List<List<String>> docs, String fileName) throws IOException {
-        FileWriter writer = new FileWriter(fileName);
-        for(List<String> doc: docs) {
-            for(String tok: doc) {
-                writer.write(tok + " ");
-            }
-            writer.write("\n");
-        }
-        writer.close();
-    }
-
-    // Write matrix to file
-    private void writeMatrix(List<List<Double>> matrix) throws IOException {
-        FileWriter writer = new FileWriter(matrixFile);
-        for(List<Double> row: matrix) {
-            for (Double score: row) {
-                writer.write(score + ",");
-            }
-            writer.write("\n");
-        }
-        writer.close();
     }
 
     // Sort map by values
