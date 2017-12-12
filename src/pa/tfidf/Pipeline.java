@@ -23,7 +23,7 @@ public class Pipeline {
         for (File folder: data) {
 
             String folderName = folder.getName();
-            if (!folderName.startsWith("C")) {
+            if (folderName.startsWith(".")) {
                 continue;
             }
             System.out.println(folderName);

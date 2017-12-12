@@ -103,6 +103,50 @@ public class IOUtils {
         }
         return a;
     }
+
+    // Print matrix
+    static void printMatrix(int[][] a) {
+        for (int r=0; r<a.length; r++) {
+            for (int c=0; c<a[r].length; c++) {
+                System.out.print(String.format("%4s", a[r][c]));
+            }
+            System.out.println();
+        }
+    }
+
+    // Print confusion matrix
+    public static void printConfusionMatrix(List<String> predLabels, List<String> trueLabels) {
+
+        assert (predLabels.size() == trueLabels.size());
+
+        Map<String, Integer> map = new HashMap<String, Integer>();
+        map.put("airline_safety", 1);
+        map.put("amphertamine", 2);
+        map.put("china_spy_plan_captives", 3);
+        map.put("hoof_mouth_disease", 4);
+        map.put("iran_nuclear", 5);
+        map.put("korea_nuclear", 6);
+        map.put("mortgage_rates", 7);
+        map.put("ocean_pollution", 8);
+        map.put("satanic_cult", 9);
+        map.put("storm_irene", 10);
+        map.put("volcano", 11);
+        map.put("saddam_hussein", 12);
+        map.put("kim_jong_un", 13);
+        map.put("predictive_analytics", 14);
+        map.put("irma_harvey", 15);
+
+        int[][] matrix = new int[15][15];
+
+        for (int i=0; i<predLabels.size(); i++) {
+
+            int row = map.get(predLabels.get(i));
+            int col = map.get(trueLabels.get(i));
+
+            matrix[row-1][col-1]++;
+        }
+        printMatrix(matrix);
+    }
     
 }
 

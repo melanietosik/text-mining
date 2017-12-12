@@ -23,11 +23,18 @@ public class Pipeline {
 
     public static void main(String[] args) throws IOException {
 
-        _k = 5;
+        _k = 3;
         _metric = "cosine";
 
-        // Read document text
-        String doc = "Is Earth trying to eject us from the planet? Again and again and again the harshest of winds and hardest of rains has pounded on the most-defenseless territories we have. The Caribbean islands, hanging out in open sea. The Florida peninsula, jutting out into danger.";
+        // Usage
+        if (args.length != 2) {
+            System.out.println("Usage: java pa.knn.Pipeline <test_file> <test_data_folder>");
+        }
+        String testFile = args[0];
+        File[] testData = new File(args[1]).listFiles();
+
+        // Read test document text
+        String doc = utils.readText(testFile);
 
         // Read documents and terms
         List<List<String>> docs = utils.readDocs(docFile);
@@ -54,7 +61,7 @@ public class Pipeline {
         List<String> nearestTopics = new ArrayList<String>();
 
         for (int i: neighbors) {
-            System.out.println("\t" + ids.get(i) + ", " + topics.get(i));
+            System.out.println(" " + ids.get(i) + ", " + topics.get(i));
             nearestTopics.add(topics.get(i));
         }
 
@@ -67,7 +74,77 @@ public class Pipeline {
         CrossValidation cv = new CrossValidation(matrix, ids, topics);
         Map<Integer, Double> acc = cv.crossValidate(10);
         System.out.println("Average accuracies: " + acc);
-    }
 
+        // Choose best k based on cross-validation accuracies
+        Map.Entry<Integer, Double> max = null;
+        for (Map.Entry<Integer, Double> entry : acc.entrySet()) {
+            if (max == null || entry.getValue() > max.getValue()) { max = entry; }
+        }
+        int best = max.getKey();
+        System.out.println("Best: k=" + best);
+
+        // Gold labels per test folder
+        Map<String, String> gold = new HashMap<String, String>();
+        gold.put("1", "irma_harvey");
+        gold.put("2", "predictive_analytics"); // ADD ADDITIONAL FOLDERS/LABELS HERE
+
+        /*
+            airline_safety
+            amphertamine
+            china_spy_plan_captives
+            hoof_mouth_disease
+            iran_nuclear
+            korea_nuclear
+            mortgage_rates
+            ocean_pollution
+            satanic_cult
+            storm_irene
+            volcano
+            saddam_hussein
+            kim_jong_un
+            predictive_analytics
+            irma_harvey
+        */ 
+
+        // Predicted labels 
+        List<String> predLabels = new ArrayList<String>();
+        // True labels
+        List<String> trueLabels = new ArrayList<String>();
+
+        for (File folder: testData) {
+
+            String folderName = folder.getName();
+            if (folderName.startsWith(".")) {
+                continue;
+            }
+            System.out.println(folderName);
+
+            File[] testDocs = folder.listFiles();
+            for (File testDoc: testDocs) {
+
+                // Get document ID
+                String id = folder.getName() + "_" + testDoc.getName();
+                id = id.substring(0, id.lastIndexOf("."));
+                
+                // Preprocess
+                String text = utils.readText(testDoc.getAbsolutePath());
+                double[] testVec = tfidf.process(text);
+                
+                // Get k-nearest neighbors and topics
+                int[] testNeighbors = knn.getNearestNeighbors(testVec, best, "cosine");
+                List<String> testNearestTopics = new ArrayList<String>();
+                for (int i: testNeighbors) { testNearestTopics.add(topics.get(i)); }
+                
+                // Get label and add to list of predicted labels
+                String testLabel = knn.getLabel(testNearestTopics);
+                predLabels.add(testLabel);
+
+                // Get true label and add to list of true labels
+                String trueLabel = gold.get(id.split("_")[0]);
+                trueLabels.add(trueLabel);
+            }
+        }
+        utils.printConfusionMatrix(predLabels, trueLabels);
+    }
 }
 
