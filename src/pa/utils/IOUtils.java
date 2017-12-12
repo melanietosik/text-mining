@@ -173,8 +173,8 @@ public class IOUtils {
 
         for (int i=0; i<predLabels.size(); i++) {
 
-            int row = map.get(trueLabels.get(i));
-            int col = map.get(predLabels.get(i));
+            int row = map.get(predLabels.get(i));
+            int col = map.get(trueLabels.get(i));
 
             matrix[row-1][col-1]++;
         }

@@ -115,6 +115,7 @@ public class Pipeline {
         // Test data TF-IDF matrix (to be used with RapidMiner)
         List<List<Double>> testMatrix = new ArrayList<List<Double>>();
 
+        System.out.println("Processing test data...");
         for (File folder: testData) {
 
             String folderName = folder.getName();
@@ -156,6 +157,8 @@ public class Pipeline {
             }
         }
         utils.writeMatrix(testMatrix, testMatrixFile);
+
+        System.out.println("Generating confusion matrix...");
         utils.printConfusionMatrix(predLabels, trueLabels);
     }
 

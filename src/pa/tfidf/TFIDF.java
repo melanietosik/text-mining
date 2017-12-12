@@ -3,6 +3,8 @@ package pa.tfidf;
 import java.io.*;
 import java.util.*;
 
+import pa.utils.IOUtils;
+
 
 public class TFIDF {
 
